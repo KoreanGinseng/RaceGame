@@ -7,5 +7,5 @@ private:
 public:
 	CPlayer();
 	virtual ~CPlayer();
-	virtual void Update();
+	virtual void Update(CMeshPtr pGMesh, CMeshPtr pWMesh);
 };

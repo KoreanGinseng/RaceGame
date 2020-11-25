@@ -22,119 +22,40 @@ bool					gbDebug = false;
 bool					gbCamera = false;
 
 //カメラ
-CCamera					gCamera;
-//カメラ位置
-CVector3				gCPos(0, 0, -5);
-//カメラ注視点位置
-CVector3				gTPos(0, 0, 0);
-//カメラの上方ベクトル
-CVector3				gCUp(0, 1, 0);
-/**
- * カメラ更新
- */
-void UpdateCamera(){
-	if (g_pInput->IsKeyHold(MOFKEY_LEFT))
-	{
-		CVector3 vv = gCPos - gTPos;
-		vv.RotationY(0.01f);
-		gCPos = gTPos + vv;
-		gCamera.LookAt(gCPos, gTPos, Vector3(0, 1, 0));
-		gCamera.Update();
-	}
-	else if (g_pInput->IsKeyHold(MOFKEY_RIGHT))
-	{
-		CVector3 vv = gCPos - gTPos;
-		vv.RotationY(-0.01f);
-		gCPos = gTPos + vv;
-		gCamera.LookAt(gCPos, gTPos, Vector3(0, 1, 0));
-		gCamera.Update();
-	}
-	if (g_pInput->IsKeyHold(MOFKEY_UP))
-	{
-		CVector3 vv = gCPos - gTPos;
-		float d = sqrt(vv.x * vv.x + vv.z * vv.z);
-		MofFloat sina = MOF_SIN(-0.01f);
-		MofFloat cosa = MOF_COS(-0.01f);
-		MofFloat tmpy = vv.y * cosa + d * -sina;
-		MofFloat tmpxz = vv.y * sina + d * cosa;
-		vv.y = tmpy;
-		vv.x = (vv.x / d) * tmpxz;
-		vv.z = (vv.z / d) * tmpxz;
-		gCPos = gTPos + vv;
-		gCamera.LookAt(gCPos, gTPos, Vector3(0, 1, 0));
-		gCamera.Update();
-	}
-	else if (g_pInput->IsKeyHold(MOFKEY_DOWN))
-	{
-		CVector3 vv = gCPos - gTPos;
-		float d = sqrt(vv.x * vv.x + vv.z * vv.z);
-		MofFloat sina = MOF_SIN(0.01f);
-		MofFloat cosa = MOF_COS(0.01f);
-		MofFloat tmpy = vv.y * cosa + d * -sina;
-		MofFloat tmpxz = vv.y * sina + d * cosa;
-		vv.y = tmpy;
-		vv.x = (vv.x / d) * tmpxz;
-		vv.z = (vv.z / d) * tmpxz;
-		gCPos = gTPos + vv;
-		gCamera.LookAt(gCPos, gTPos, Vector3(0, 1, 0));
-		gCamera.Update();
-	}
+CFreeCamera				gFreeCamera;
 
-	//マウス入力でカメラ操作
-	CVector3 mv;
-	g_pInput->GetMouseMove(mv);
-	//ホイールによるカメラのズーム調整
-	if (mv.z != 0)
+bool LoadCharacter(void)
+{
+	if (!CMeshAsset::Load("Neko", "Neko.mom"))
 	{
-		CVector3 vv = gCPos - gTPos;
-		vv *= 1.0f - mv.z * 0.0001f;
-		gCPos = gTPos + vv;
-		gCamera.LookAt(gCPos, gTPos, Vector3(0, 1, 0));
-		gCamera.Update();
+		return false;
 	}
-	else if (g_pInput->IsMouseKeyHold(2))
+	if (!CMeshAsset::Load("Ball01", "Ball01.mom"))
 	{
-		CVector3 vv = gCPos - gTPos;
-		vv *= 1.0f + mv.y * 0.01f;
-		gCPos = gTPos + vv;
-		gCamera.LookAt(gCPos, gTPos, Vector3(0, 1, 0));
-		gCamera.Update();
+		return false;
 	}
-	//左クリックによるカメラ移動
-	if (g_pInput->IsMouseKeyHold(MOFMOUSE_LBUTTON))
+	return true;
+}
+
+bool LoadStage(void)
+{
+	if (!CMeshAsset::Load("Course1", "Course1.mom"))
 	{
-		CVector3 sv;
-		CVector3 uv;
-		CVector3 vv = gTPos - gCPos;
-		vv.Normal(vv);
-		vv.Cross(gCUp, sv);
-		sv.Normal(sv);
-		gCPos += sv * mv.x * 0.01f;
-		gTPos += sv * mv.x * 0.01f;
-		sv.Cross(vv, uv);
-		uv.Normal(uv);
-		gCPos += uv * mv.y * 0.01f;
-		gTPos += uv * mv.y * 0.01f;
-		gCamera.LookAt(gCPos, gTPos, Vector3(0, 1, 0));
-		gCamera.Update();
+		return false;
 	}
-	//右クリックによるカメラ回転
-	if (g_pInput->IsMouseKeyHold(MOFMOUSE_RBUTTON))
+	if (!CMeshAsset::Load("Course1_sky", "Course1_sky.mom"))
 	{
-		CVector3 vv = gCPos - gTPos;
-		vv.RotationY(mv.x * 0.01f);
-		float d = sqrt(vv.x * vv.x + vv.z * vv.z);
-		MofFloat sina = MOF_SIN(-mv.y * 0.01f);
-		MofFloat cosa = MOF_COS(-mv.y * 0.01f);
-		MofFloat tmpy = vv.y * cosa + d * -sina;
-		MofFloat tmpxz = vv.y * sina + d * cosa;
-		vv.y = tmpy;
-		vv.x = (vv.x / d) * tmpxz;
-		vv.z = (vv.z / d) * tmpxz;
-		gCPos = gTPos + vv;
-		gCamera.LookAt(gCPos, gTPos, Vector3(0, 1, 0));
-		gCamera.Update();
+		return false;
 	}
+	if (!CMeshAsset::Load("Course1WallHit", "Course1WallHit.mom"))
+	{
+		return false;
+	}
+	if (!CMeshAsset::Load("Course1GroundHit", "Course1GroundHit.mom"))
+	{
+		return false;
+	}
+	return true;
 }
 
 /*************************************************************************//*!
@@ -149,18 +70,23 @@ MofBool CGameApp::Initialize(void){
 	CUtilities::SetCurrentDirectory("Resource");
 
 	//カメラの設定
-	gCamera.SetViewPort();
-	gCamera.LookAt(gCPos, gTPos, gCUp);
-	gCamera.PerspectiveFov(MOF_ToRadian(60.0f), 1024.0f / 768.0f, 0.01f, 2000.0f);
-	gCamera.Update();
-	CGraphicsUtilities::SetCamera(&gCamera);
+	gFreeCamera.Initialize();
+	CGraphicsUtilities::SetCamera(gFreeCamera.GetCamera());
 
 	//キャラクタの読み込み
 	CUtilities::SetCurrentDirectory("Chara");
+	if (!LoadCharacter())
+	{
+		return FALSE;
+	}
 	gPlayer.Load();
 	CUtilities::SetCurrentDirectory("../");
 	//ステージの読み込み
 	CUtilities::SetCurrentDirectory("Stage");
+	if (!LoadStage())
+	{
+		return FALSE;
+	}
 	gStage.Load();
 	CUtilities::SetCurrentDirectory("../");
 
@@ -183,24 +109,26 @@ MofBool CGameApp::Update(void){
 	//キー入力でカメラ操作
 	if (gbCamera)
 	{
-		UpdateCamera();
+		gFreeCamera.Update();
 	}
 	else
 	{
 		//キャラクタの更新
-		gPlayer.Update();
+		gPlayer.Update(gStage.GetCollisionGroundMesh(), gStage.GetCollisionWallMesh());
 	}
+	
 	//ステージの更新
 	gStage.Update();
+
 	if (g_pInput->IsKeyPush(MOFKEY_RETURN))
 	{
-		gbCamera = ((gbCamera) ? false : true);
+		gbCamera = !gbCamera;
 	}
 
 	// デバッグ表示の切り替え
 	if (g_pInput->IsKeyPush(MOFKEY_F1))
 	{
-		gbDebug = ((gbDebug) ? false : true);
+		gbDebug = !gbDebug;
 	}
 	return TRUE;
 }
@@ -221,7 +149,7 @@ MofBool CGameApp::Render(void){
 	g_pGraphics->SetDepthEnable(TRUE);
 	if (gbCamera)
 	{
-		CGraphicsUtilities::SetCamera(&gCamera);
+		CGraphicsUtilities::SetCamera(gFreeCamera.GetCamera());
 	}
 	else
 	{
@@ -231,8 +159,10 @@ MofBool CGameApp::Render(void){
 
 	//ステージの描画
 	gStage.Render();
+
 	//キャラクタの描画
 	gPlayer.Render();
+	
 	//グリッドを描画する
 	if (gbDebug)
 	{
@@ -266,5 +196,7 @@ MofBool CGameApp::Release(void){
 	//キャラクタの解放
 	gStage.Release();
 	gPlayer.Release();
+
+	CMeshAsset::Release();
 	return TRUE;
 }
