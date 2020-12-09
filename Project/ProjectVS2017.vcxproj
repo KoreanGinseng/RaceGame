@@ -42,14 +42,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>../../../MofLibrary/Include;../../MofLibrary/Include;../../../MofSipLib/Include;../../MofSipLib/Include;$(IncludePath)</IncludePath>
-    <LibraryPath>../../../MofSipLib/Library;../../MofSipLib/Library;../../MofLibrary/Library;../../../MofLibrary/Library;$(LibraryPath)</LibraryPath>
+    <IncludePath>../../../MofLibrary/Include;../../MofLibrary/Include;$(IncludePath)</IncludePath>
+    <LibraryPath>../../MofLibrary/Library;../../../MofLibrary/Library;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>../../../MofLibrary/Include;../../MofLibrary/Include;../../../MofSipLib/Include;../../MofSipLib/Include;$(IncludePath)</IncludePath>
-    <LibraryPath>../../../MofSipLib/Library;../../MofSipLib/Library;../../MofLibrary/Library;../../../MofLibrary/Library;$(LibraryPath)</LibraryPath>
+    <IncludePath>../../../MofLibrary/Include;../../MofLibrary/Include;$(IncludePath)</IncludePath>
+    <LibraryPath>../../MofLibrary/Library;../../../MofLibrary/Library;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -66,7 +66,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)\Library\Library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBCMTD;</IgnoreSpecificDefaultLibraries>
-      <AdditionalDependencies>MofSip_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ResourceCompile>
       <PreprocessorDefinitions>USERNAME=$(USERNAME);</PreprocessorDefinitions>
@@ -90,7 +89,6 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)\Library\Library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBCMT;</IgnoreSpecificDefaultLibraries>
-      <AdditionalDependencies>MofSip.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ResourceCompile>
       <PreprocessorDefinitions>USERNAME=$(USERNAME);</PreprocessorDefinitions>
@@ -101,6 +99,8 @@
     <ClCompile Include="Cpu.cpp" />
     <ClCompile Include="GameApp.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="sip\utilities\FreeCamera.cpp" />
+    <ClCompile Include="sip\utilities\MyCamera.cpp" />
     <ClCompile Include="Stage.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
@@ -109,7 +109,11 @@
     <ClInclude Include="Cpu.h" />
     <ClInclude Include="GameApp.h" />
     <ClInclude Include="GameDefine.h" />
+    <ClInclude Include="MofSip.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="sip\utilities\AssetBase.h" />
+    <ClInclude Include="sip\utilities\FreeCamera.h" />
+    <ClInclude Include="sip\utilities\MyCamera.h" />
     <ClInclude Include="Stage.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
@@ -117,5 +121,8 @@
   </ImportGroup>
   <ItemGroup>
     <ResourceCompile Include="Version.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="sip\utilities\MyCamera.inl" />
   </ItemGroup>
 </Project>
