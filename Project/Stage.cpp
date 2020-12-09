@@ -43,10 +43,12 @@ bool CStage::Load(void)
 	}
 	//パス読み込み
 	fscanf(fp, "%d\n", &m_PathCount);
+	m_PathArray = new CVector3[m_PathCount];
 	for (int i = 0; i < m_PathCount; i++)
 	{
 		fscanf(fp, "%f,%f,%f\n", &m_PathArray[i].x, &m_PathArray[i].y, &m_PathArray[i].z);
 	}
+	//ファイルを閉じる
 	fclose(fp);
 
 	return true;

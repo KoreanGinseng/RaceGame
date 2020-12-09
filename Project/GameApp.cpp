@@ -109,7 +109,7 @@ MofBool CGameApp::Initialize(void){
 	//初期化
 	for (int i = 0; i < MAXCHARACTER; i++)
 	{
-		gCharacter[i]->Initialize(gStage.GetStartPos(0), gStage.GetPath());
+		gCharacter[i]->Initialize(gStage.GetStartPos(i), gStage.GetPath());
 	}
 	gStage.Initialize();
 	return TRUE;
@@ -140,6 +140,7 @@ MofBool CGameApp::Update(void){
 			//パスの判定
 			gCharacter[i]->CalculatePathNo(gStage.GetPath(), gStage.GetPathCount());
 		}
+		gCharacter[0]->UpdateRank(&(gCharacter[1]), MAXCHARACTER - 1, gStage.GetPath(), gStage.GetPathCount());
 	}
 	
 	//ステージの更新

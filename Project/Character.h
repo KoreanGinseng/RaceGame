@@ -43,6 +43,8 @@ protected:
 	CMeshPtr                    m_pShadow{ nullptr };
 	int                         m_PathNo{ 0 };
 
+	int                         m_Rank{ 0 };
+
 public:
 
 	CCharacter();
@@ -59,4 +61,6 @@ public:
 
 	virtual void CollisionStage(CMeshPtr pGMesh, CMeshPtr pWMesh);
 	virtual void CalculatePathNo(CVector3* path, int cnt);
+
+	virtual void UpdateRank(CCharacter** chara, int ccnt, CVector3* path, int cnt);
 };

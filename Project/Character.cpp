@@ -233,7 +233,8 @@ void CCharacter::RenderDebugText(void)
 {
 	// 位置の描画
 	CGraphicsUtilities::RenderString(10,40,MOF_COLOR_WHITE,
-			"プレイヤー位置 X : %.1f , Y : %.1f , Z : %.1f / %d",m_Pos.x,m_Pos.y,m_Pos.z, m_PathNo);
+			"プレイヤー位置 X : %.1f , Y : %.1f , Z : %.1f / %d [順位 %d]",
+		m_Pos.x,m_Pos.y,m_Pos.z, m_PathNo, m_Rank);
 }
 
 /**
@@ -339,6 +340,41 @@ void CCharacter::CalculatePathNo(CVector3 * path, int cnt)
 			{
 				//違う場合は現在の点を未通過として判定終了
 				break;
+			}
+		}
+	}
+}
+
+void CCharacter::UpdateRank(CCharacter** chara, int ccnt, CVector3 * path, int cnt)
+{
+	//パス最大数以上の通過が確認されたらゴールと判定して順位の更新は行わない
+	if(m_PathNo >= cnt - 1)
+	{ 
+		return;
+	}
+
+	//初期値設定
+	m_Rank = 1;
+	//全キャラと判定
+	for (int i = 0; i < ccnt; i++)
+	{
+		//通過パス番号が相手のほうが大きいと相手のほうが前
+		if (chara[i]->m_PathNo > m_PathNo)
+		{
+			m_Rank++;
+		}
+		//通過パス番号が同じなら次の通過パスへの距離が近いほうが前
+		else if (chara[i]->m_PathNo == m_PathNo)
+		{
+			//次の点から今の点へのベクトル
+			CVector3 nv = path[m_PathNo] - path[m_PathNo + 1];
+			//次の点から自分へのベクトル
+			CVector3 pv = m_Pos - path[m_PathNo + 1];
+			//次の点から判定キャラへのベクトル
+			CVector3 ov = chara[i]->m_Pos - path[m_PathNo + 1];
+			if (nv.Dot(pv) > nv.Dot(ov))
+			{
+				m_Rank++;
 			}
 		}
 	}
