@@ -11,9 +11,18 @@
 #include	"GameApp.h"
 #include	"Player.h"
 #include	"Stage.h"
+#include    "Cpu.h"
 
 //キャラクタの宣言
-CPlayer					gPlayer;
+CCharacter*  			gCharacter[MAXCHARACTER] = 
+{
+	new CPlayer(),
+	new CCpu(),
+	new CCpu(),
+	new CCpu(),
+	new CCpu(),
+	new CCpu(),
+};
 //ステージの宣言
 CStage					gStage;
 // デバッグ表示フラグ
@@ -31,6 +40,10 @@ bool LoadCharacter(void)
 		return false;
 	}
 	if (!CMeshAsset::Load("Ball01", "Ball01.mom"))
+	{
+		return false;
+	}
+	if (!CMeshAsset::Load("Shadow", "Shadow.mom"))
 	{
 		return false;
 	}
@@ -79,7 +92,10 @@ MofBool CGameApp::Initialize(void){
 	{
 		return FALSE;
 	}
-	gPlayer.Load();
+	for (int i = 0; i < MAXCHARACTER; i++)
+	{
+		gCharacter[i]->Load();
+	}
 	CUtilities::SetCurrentDirectory("../");
 	//ステージの読み込み
 	CUtilities::SetCurrentDirectory("Stage");
@@ -91,7 +107,10 @@ MofBool CGameApp::Initialize(void){
 	CUtilities::SetCurrentDirectory("../");
 
 	//初期化
-	gPlayer.Initialize();
+	for (int i = 0; i < MAXCHARACTER; i++)
+	{
+		gCharacter[i]->Initialize(gStage.GetStartPos(0), gStage.GetPath());
+	}
 	gStage.Initialize();
 	return TRUE;
 }
@@ -114,7 +133,13 @@ MofBool CGameApp::Update(void){
 	else
 	{
 		//キャラクタの更新
-		gPlayer.Update(gStage.GetCollisionGroundMesh(), gStage.GetCollisionWallMesh());
+		for (int i = 0; i < MAXCHARACTER; i++)
+		{
+			gCharacter[i]->Update(gStage.GetCollisionGroundMesh(), gStage.GetCollisionWallMesh(),
+				gStage.GetPath(), gStage.GetPathCount());
+			//パスの判定
+			gCharacter[i]->CalculatePathNo(gStage.GetPath(), gStage.GetPathCount());
+		}
 	}
 	
 	//ステージの更新
@@ -154,19 +179,23 @@ MofBool CGameApp::Render(void){
 	else
 	{
 		//プレイヤーのカメラを有効にする
-		gPlayer.SetCameraEnable();
+		gCharacter[0]->SetCameraEnable();
 	}
 
 	//ステージの描画
 	gStage.Render();
 
 	//キャラクタの描画
-	gPlayer.Render();
+	for (int i = 0; i < MAXCHARACTER; i++)
+	{
+		gCharacter[i]->Render();
+	}
 	
 	//グリッドを描画する
 	if (gbDebug)
 	{
 		CGraphicsUtilities::RenderGrid(2, 100, MOF_COLOR_WHITE, PLANEAXIS_ALL);
+		gStage.RenderDebug();
 	}
 
 	// 深度バッファ無効化
@@ -178,7 +207,7 @@ MofBool CGameApp::Render(void){
 		//FPS描画
 		CGraphicsUtilities::RenderString(10, 10, MOF_COLOR_WHITE, "%d", CUtilities::GetFPS());
 		// プレイヤーのデバッグ文字描画
-		gPlayer.RenderDebugText();
+		gCharacter[0]->RenderDebugText();
 	}
 
 	//描画の終了
@@ -195,7 +224,11 @@ MofBool CGameApp::Render(void){
 MofBool CGameApp::Release(void){
 	//キャラクタの解放
 	gStage.Release();
-	gPlayer.Release();
+
+	for (int i = 0; i < MAXCHARACTER; i++)
+	{
+		MOF_SAFE_DELETE(gCharacter[i]);
+	}
 
 	CMeshAsset::Release();
 	return TRUE;

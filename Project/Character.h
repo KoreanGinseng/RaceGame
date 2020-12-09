@@ -40,13 +40,16 @@ protected:
 	CMeshPtr                    m_pBallMesh{ nullptr };
 	CMatrix33                   m_BallRotation{ Matrix33() };
 
+	CMeshPtr                    m_pShadow{ nullptr };
+	int                         m_PathNo{ 0 };
+
 public:
 
 	CCharacter();
 	virtual ~CCharacter();
 	virtual bool Load();
-	virtual void Initialize();
-	virtual void Update(CMeshPtr pGMesh, CMeshPtr pWMesh);
+	virtual void Initialize(const CVector3& sp, CVector3* path);
+	virtual void Update(CMeshPtr pGMesh, CMeshPtr pWMesh, CVector3 * path, int cnt);
 	virtual void UpdateMove();
 	virtual void UpdateCamera();
 	virtual void SetCameraEnable();
@@ -55,4 +58,5 @@ public:
 	virtual void Release();
 
 	virtual void CollisionStage(CMeshPtr pGMesh, CMeshPtr pWMesh);
+	virtual void CalculatePathNo(CVector3* path, int cnt);
 };

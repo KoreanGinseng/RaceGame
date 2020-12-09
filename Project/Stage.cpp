@@ -28,6 +28,27 @@ bool CStage::Load(void)
 	{
 		return false;
 	}
+
+	//テキストファイルを開く
+	FILE* fp = fopen("path.txt", "rt");
+	if (fp == NULL)
+	{
+		return false;
+	}
+
+	//スタート地点読み込み
+	for (int i = 0; i < MAXCHARACTER; i++)
+	{
+		fscanf(fp, "%f,%f,%f\n", &m_StartPos[i].x, &m_StartPos[i].y, &m_StartPos[i].z);
+	}
+	//パス読み込み
+	fscanf(fp, "%d\n", &m_PathCount);
+	for (int i = 0; i < m_PathCount; i++)
+	{
+		fscanf(fp, "%f,%f,%f\n", &m_PathArray[i].x, &m_PathArray[i].y, &m_PathArray[i].z);
+	}
+	fclose(fp);
+
 	return true;
 }
 
@@ -64,6 +85,24 @@ void CStage::Render(void)
 }
 
 /**
+* デバッグ描画
+*/
+void CStage::RenderDebug(void)
+{
+	//パス地点描画
+	for (int i = 0; i < m_PathCount; i++)
+	{
+		CSphere gsp{ m_PathArray[i], 3.0f };
+		CGraphicsUtilities::RenderSphere(gsp, CVector4{ 0, 1, 0, 0.5f });
+		//次の点とを線でつなぐ
+		if (i != m_PathCount - 1)
+		{
+			CGraphicsUtilities::RenderLine(m_PathArray[i], m_PathArray[i + 1], MOF_COLOR_GREEN);
+		}
+	}
+}
+
+/**
 * デバッグ文字描画
 */
 void CStage::RenderDebugText(void)
@@ -75,10 +114,26 @@ void CStage::RenderDebugText(void)
 */
 void CStage::Release(void)
 {
-	m_pMesh = nullptr;
-	m_pSkyMesh = nullptr;
-	m_pCollisionWallMesh = nullptr;
+	m_pMesh                = nullptr;
+	m_pSkyMesh             = nullptr;
+	m_pCollisionWallMesh   = nullptr;
 	m_pCollisionGroundMesh = nullptr;
+	MOF_SAFE_DELETE_ARRAY(m_PathArray);
+}
+
+const CVector3 & CStage::GetStartPos(int no) const
+{
+	return m_StartPos[no];
+}
+
+CVector3 * CStage::GetPath(void)
+{
+	return m_PathArray;
+}
+
+int CStage::GetPathCount(void)
+{
+	return m_PathCount;
 }
 
 CMeshPtr CStage::GetCollisionGroundMesh(void)

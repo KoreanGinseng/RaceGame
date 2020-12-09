@@ -22,6 +22,7 @@ bool CCharacter::Load(void)
 	// メッシュの読み込み
 	m_pMesh     = MeshAsset("Neko");
 	m_pBallMesh = MeshAsset("Ball01");
+	m_pShadow   = MeshAsset("Shadow");
 	if (!m_pMesh || !m_pBallMesh)
 	{
 		return false;
@@ -32,10 +33,15 @@ bool CCharacter::Load(void)
 
 /**
  * 初期化
+ * [in]      sp      開始位置
+ * [in]      path    パス
  */
-void CCharacter::Initialize(void)
+void CCharacter::Initialize(const CVector3& sp, CVector3* path)
 {
-	m_Pos = Vector3(0.0f, 0.0f, 0.0f);
+	//開始地点の設定と最初のパスの向きにキャラを向ける
+	m_Pos = sp;
+	m_Angle.y = atan2f(path[1].z - path[0].z, -(path[1].x - path[0].x)) + MOF_MATH_HALFPI;
+	m_PathNo = 0;
 	m_pMotion->ChangeMotionByName("Stop_Ball", 1.0f, TRUE);
 
 	//カメラの設定
@@ -50,7 +56,7 @@ void CCharacter::Initialize(void)
 /**
  * 更新
  */
-void CCharacter::Update(CMeshPtr pGMesh, CMeshPtr pWMesh)
+void CCharacter::Update(CMeshPtr pGMesh, CMeshPtr pWMesh, CVector3 * path, int cnt)
 {
 	//移動更新
 	UpdateMove();
@@ -203,6 +209,21 @@ void CCharacter::Render(void)
 	m_pMotion->RefreshBoneMatrix(matWorld);
 	// メッシュの描画
 	m_pMesh->Render(m_pMotion);
+
+	// 影の描画
+	CMatrix44 matShadow;
+
+	//ボールの影
+	matShadow.Scaling(2.0f);
+	matShadow *= matGround;
+	matShadow.SetTranslation(m_Pos + m_GroundNormal * 0.01f);
+	m_pShadow->Render(matShadow);
+
+	//キャラクタの影
+	matShadow.Scaling(1.0f);
+	matShadow *= matGround;
+	matShadow.SetTranslation(m_Pos + vb + m_GroundNormal * 0.01f);
+	m_pShadow->Render(matShadow);
 }
 
 /**
@@ -212,7 +233,7 @@ void CCharacter::RenderDebugText(void)
 {
 	// 位置の描画
 	CGraphicsUtilities::RenderString(10,40,MOF_COLOR_WHITE,
-			"プレイヤー位置 X : %.1f , Y : %.1f , Z : %.1f",m_Pos.x,m_Pos.y,m_Pos.z);
+			"プレイヤー位置 X : %.1f , Y : %.1f , Z : %.1f / %d",m_Pos.x,m_Pos.y,m_Pos.z, m_PathNo);
 }
 
 /**
@@ -221,8 +242,9 @@ void CCharacter::RenderDebugText(void)
 void CCharacter::Release(void)
 {
 	MOF_SAFE_DELETE(m_pMotion);
-	m_pMesh = nullptr;
+	m_pMesh     = nullptr;
 	m_pBallMesh = nullptr;
+	m_pShadow   = nullptr;
 }
 
 void CCharacter::CollisionStage(CMeshPtr pGMesh, CMeshPtr pWMesh)
@@ -275,6 +297,49 @@ void CCharacter::CollisionStage(CMeshPtr pGMesh, CMeshPtr pWMesh)
 			upv.Cross(gout.Normal, m_GroundAxis);
 			m_GroundNormal = gout.Normal;
 			m_GroundAxis.Normal(m_GroundAxis);
+		}
+	}
+}
+
+void CCharacter::CalculatePathNo(CVector3 * path, int cnt)
+{
+	//現在のパス位置から順に判定
+	for (int i = m_PathNo; i < cnt; i++)
+	{
+		//最後の一転はゴールとして前の点とで判定
+		if (i == cnt - 1)
+		{
+			//現在の点から前の点へ向かうベクトル
+			CVector3 nv = path[i] - path[i - 1];
+			//現在の点からキャラクターへ向かうベクトル
+			CVector3 cv = m_Pos - path[i];
+			//二つのベクトルの内積が＋なら最後の点は通過済みとする
+			if (nv.Dot(cv) > 0.0f)
+			{
+				//最後の点のため＋１してすべての点を通過済みとする
+				m_PathNo = i + 1;
+			}
+			else
+			{
+				break;
+			}
+		}
+		else
+		{
+			//現在の点から次の点へ向かうベクトル
+			CVector3 nv = path[i + 1] - path[i];
+			//現在の点からキャラクターへ向かうベクトル
+			CVector3 cv = m_Pos - path[i];
+			//二つのベクトルの内積が＋なら現在の点は通過済みとする
+			if (nv.Dot(cv) > 0.0f)
+			{
+				m_PathNo = i;
+			}
+			else
+			{
+				//違う場合は現在の点を未通過として判定終了
+				break;
+			}
 		}
 	}
 }
