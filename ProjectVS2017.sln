@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProjectVS2017", "Project\ProjectVS2017.vcxproj", "{582B9C61-742D-4D2B-9C72-42C088CE473D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RaceEditor", "RaceEditor\RaceEditor.vcxproj", "{DFDE283B-E0CC-405F-A049-C68E2991F1B5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -15,8 +17,15 @@ Global
 		{582B9C61-742D-4D2B-9C72-42C088CE473D}.Debug|Win32.Build.0 = Debug|Win32
 		{582B9C61-742D-4D2B-9C72-42C088CE473D}.Release|Win32.ActiveCfg = Release|Win32
 		{582B9C61-742D-4D2B-9C72-42C088CE473D}.Release|Win32.Build.0 = Release|Win32
+		{DFDE283B-E0CC-405F-A049-C68E2991F1B5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DFDE283B-E0CC-405F-A049-C68E2991F1B5}.Debug|Win32.Build.0 = Debug|Win32
+		{DFDE283B-E0CC-405F-A049-C68E2991F1B5}.Release|Win32.ActiveCfg = Release|Win32
+		{DFDE283B-E0CC-405F-A049-C68E2991F1B5}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {203A883D-47F6-4188-B734-18BA2BF4791F}
 	EndGlobalSection
 EndGlobal
